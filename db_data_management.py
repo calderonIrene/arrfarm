@@ -64,6 +64,8 @@ def actualitzaStock(param):
 
 def comandesAPreparar ():
     orders=[]
+    replenishmentList = []
+
     allPrescriptions = fesConsulta("allPrescription",0)
 
     for prescription in allPrescriptions:
@@ -107,8 +109,8 @@ def comandesAPreparar ():
 
                     if stockActual == 0:
                         # Si ens hem quedat sense stock al servir la comanda, 
-                        # posarem el medicament a la llista de medicaments que s'han de demanar
-                        #replenishmentList.write("- " + str(medicineALaBD[0][0])+ "\n")
+                        # El posarem tambe a llista de medicaments a demanar
+                        replenishmentList.append(medicineALaBD[0][0])
                             
                     #  Actualizem albaran
                     #deliveryNote.write("\nPRODUCT: " + str(medicineALaBD[0][0])+"")
@@ -125,8 +127,9 @@ def comandesAPreparar ():
                         #thisRecipieList.append(medicineALaBD[0][1])
 
                 
-                #else: # Si no hi ha stock del medicament demanat
+                else: # Si no hi ha stock del medicament demanat
                     #Ho indiquem a l'albaran
+                    replenishmentList.append(medicineALaBD[0][0])
                     #deliveryNote.write("\nPRODUCT: " + str(medicineALaBD[0][0])+"")
                     #deliveryNote.write("\nQUANTITAT DEMANADA: " + str(medDemanada[1]) + " --- QUANTITAT SERVIDA: 0\n")
                                     
@@ -137,5 +140,5 @@ def comandesAPreparar ():
 
         orders.append(thisRecipieList[1:])
 
-    return orders
+    return orders, replenishmentList
         

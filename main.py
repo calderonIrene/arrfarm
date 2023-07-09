@@ -1,8 +1,4 @@
-import cv2
-from pyzbar import pyzbar
-import os
-from datetime import date
-
+import datetime
 import db_data_management
 import cam
 import client
@@ -12,15 +8,22 @@ groups =    [["A", "B", "C"], ["D","E","F"],["G","H","I"],
             ["R", "S", "T"],["U", "V", "W"],["X", "Y", "Z"] ]
 
 
-orders=[]
 
-medicamentsPerDemanar = []
 
-#replenishmentListfilepath = "C:\Users\calde\Desktop\UNI\TFG\code\replenishmentFiles\1"
-#replenishmentList = open(replenishmentListfilepath, "a")
+# The file where the company's medicines to be refilled will be written is created
+# The name of the file will be in the format day-month-year_HourMinute in which the order is being prepared
+fecha_hora_actual_str = datetime.datetime.now().strftime("%d-%m-%Y_%H%M")  
+replenishmentListfilepath = r"C:\Users\calde\Desktop\UNI\TFG\src\replenishmentFiles\{}.txt".format(fecha_hora_actual_str)
+replenishmentList = open(replenishmentListfilepath, "a")
 
-orders = db_data_management.comandesAPreparar()
-        
+# The list of commands to be prepared and the list of medicines that are no longer in stock are obtained
+orders, replenishment = db_data_management.comandesAPreparar()
+
+# The file of the list of medicines that are no longer in stock is updated
+for med in replenishment:
+    replenishmentList.write("- " + med + "\n")
+
+print(f"\replenishment:{replenishment}")           
 print(f"\norders:{orders}")        
 
 numComanda = 0
