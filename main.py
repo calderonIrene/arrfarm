@@ -2,6 +2,9 @@ import datetime
 import db_data_management
 import cam
 import client
+#import subprocess
+
+#subprocess.run(["python", "python_server.py"])
 
 groups =    [["A", "B", "C"], ["D","E","F"],["G","H","I"], 
             ["J","K","L"], ["M", "N", "Ñ"], ["O", "P", "Q"], 
@@ -27,30 +30,31 @@ print(f"\replenishment:{replenishment}")
 print(f"\norders:{orders}")        
 
 numComanda = 0
-#1
+#1. FOR TASK IN TASKS:
 for order in orders:
-    #2
+    
     numComanda+=1
     print(f"\nComanda {numComanda} en proces...")
+    # 2. FOR GROUP IN GROUPS:
     for n, group in enumerate(groups):
         print(n)
-        #3
+        #3. ST = SUBLIST OF TASK IN GROUP
         ST = [ELEMENT for ELEMENT in order if ELEMENT.startswith(tuple(group))]
+        # 4. WHILE LEN(ST) != 0:
         if len(ST) != 0:
             for element in ST:
                 order.remove(element)
             print("Group "+str(group)+" "+str(ST))
-            client.send_message(n)
+            client.send_message("box_position",n) # The position of the present group container is sent to the robot
 
-            cam.ferCalaix(ST)
+            cam.ferCalaix(ST) # Medicines from the current group are collected
 
 print("Totes les comandes ja han estat preparades! :)")
 
 '''
-1. FOR TASK IN TASKS:
-    2. FOR GROUP IN GROUPS:
-        3. ST = SUBLIST OF TASK IN GROUP
-        4. WHILE THERE'S IMG AND LEN(ST) != 0:
+
+        
+        
             5. IF LECTURE IS IN ST:
                 CATCH MEDICINE (- REMOVE OF ST
                                 - TAKE PHYSICAL MEDICINE

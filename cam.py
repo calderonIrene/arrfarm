@@ -1,5 +1,6 @@
 import cv2
 from pyzbar import pyzbar
+import client
 
 def is_in_orderList(productName, orderList):
     # The product (productName) is searched in the order list (orderList)
@@ -48,16 +49,20 @@ def read_barcodes(frame, orderList):
         # If the medication is one of the medications to be processed, update the orderList
         if pos != -1:
             update_orderList(barcode_info, pos, orderList)
+            client.send_message("feedback", "yes")
+
         # Otherwise, print that it's not one of the products to be processed
         else:
             print(f"The product {barcode_info} is not found in the list")
+            client.send_message("feedback", "no")
+
 
     return frame
 
 
 def ferCalaix(ST):
     # The camera starts (0 indicates that we will use the computer's main camera)
-    camera = cv2.VideoCapture(0)
+    camera = cv2.VideoCapture(1)
 
     # The first image from the camera is saved as the frame
     ret, frame = camera.read()

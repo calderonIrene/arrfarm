@@ -24,14 +24,19 @@ groupsPositions = [
 
 
 
-def send_message(n):
+def send_message(type,n):
+
+    if type == "box_position" :
+        message = json.dumps(groupsPositions[n]).encode()
+    elif type == "feedback" :
+        message = n.encode()
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     server_address = ('localhost', 10000)
     print('connecting to {} port {}'.format(*server_address))
     sock.connect(server_address)
 
-    message = json.dumps(groupsPositions[n]).encode()
     sock.sendall(message)
 
     print('closing socket')
