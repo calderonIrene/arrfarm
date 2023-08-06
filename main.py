@@ -1,6 +1,7 @@
 import datetime
 import db_data_management
-import cam
+# import cam
+import alternative_cam as cam
 import client
 #import subprocess
 
@@ -9,9 +10,6 @@ import client
 groups =    [["A", "B", "C"], ["D","E","F"],["G","H","I"], 
             ["J","K","L"], ["M", "N", "Ñ"], ["O", "P", "Q"], 
             ["R", "S", "T"],["U", "V", "W"],["X", "Y", "Z"] ]
-
-
-
 
 # The file where the company's medicines to be refilled will be written is created
 # The name of the file will be in the format day-month-year_HourMinute in which the order is being prepared
@@ -45,7 +43,8 @@ for order in orders:
             for element in ST:
                 order.remove(element)
             print("Group "+str(group)+" "+str(ST))
-            client.send_message("box_position",n) # The position of the present group container is sent to the robot
+            #client.send_message("box_position",n) # The position of the present group container is sent to the robot
+            client.send_message()
 
             cam.ferCalaix(ST) # Medicines from the current group are collected
 

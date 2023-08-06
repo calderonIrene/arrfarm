@@ -1,5 +1,5 @@
 import cv2
-from pyzbar import pyzbar
+import pyzbar
 import client
 
 def is_in_orderList(productName, orderList):
@@ -49,12 +49,12 @@ def read_barcodes(frame, orderList):
         # If the medication is one of the medications to be processed, update the orderList
         if pos != -1:
             update_orderList(barcode_info, pos, orderList)
-            client.send_message("feedback", "yes")
+            client.send_message("F;Y;")
 
         # Otherwise, print that it's not one of the products to be processed
         else:
             print(f"The product {barcode_info} is not found in the list")
-            client.send_message("feedback", "no")
+            client.send_message("F;N;")
 
 
     return frame
