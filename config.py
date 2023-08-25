@@ -8,3 +8,8 @@ config = {
     'database': 'arrfarm',
     'raise_on_warnings': True
 }
+
+
+
+ROBOT_IP = '84.88.129.201'
+ROBOT_PORT = 2007
