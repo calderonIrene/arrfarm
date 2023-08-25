@@ -138,10 +138,6 @@ def orders_to_be_prepared ():
 
                 # medicine_in_BD will save the current product
                 medicine_in_BD =  make_query("medicineALaBD", (med_ordered[0],))
-
-                print(medicine_in_BD[0][1])
-                print("Medicina demanada "+str(med_ordered))
-                print("Medicina en la bd "+str(medicine_in_BD))
                 
                 # If the medicine is in stock:    
                 if medicine_in_BD[0][1] != 0:
@@ -168,10 +164,9 @@ def orders_to_be_prepared ():
                     delivery_note.write("\nPRODUCT: " + str(medicine_in_BD[0][0])+"")
                     delivery_note.write("\nQUANTITAT DEMANADA: " + str(med_ordered[1]) + " --- QUANTITAT SERVIDA: " + str(delivered)+ "\n")
                     delivery_note.write("\n Ara tenim un stock total de: " + str(updated_stock)+ "\n")
-                    print("0")
 
                     #  The stock of the drug in the database is updated
-                    update _stock((updated_stock, med_ordered[0]))
+                    update_stock((updated_stock, med_ordered[0]))
 
                     # The medicine is added to the order list
                     if delivered >= 0:

@@ -1,7 +1,9 @@
 import cv2
-import pyzbar
+from pyzbar import pyzbar
 from pyzbar.pyzbar import decode
+import zxing
 import client
+import time
 
 def is_in_orderList(productName, orderList):
     # The product (productName) is searched in the order list (orderList)
@@ -26,7 +28,7 @@ codis_llegits = set()
 def read_barcodes(frame, orderList):
     # PRE: frame is the barcode information, orderList is the list of medications to be found
     # POST: The updated orderList is returned considering the newly scanned code
-    barcodes = decode(frame)
+    barcodes = pyzbar.decode(frame)
     i = 0
     for barcode in barcodes:
         x, y , w, h = barcode.rect
@@ -50,12 +52,14 @@ def read_barcodes(frame, orderList):
         # If the medication is one of the medications to be processed, update the orderList
         if pos != -1:
             update_orderList(barcode_info, pos, orderList)
-            client.send_message("A;")
+            time.sleep(15)
+            client.send_message("F;Y;")
+            time.sleep(15)
 
         # Otherwise, print that it's not one of the products to be processed
         else:
             print(f"The product {barcode_info} is not found in the list")
-            #client.send_message("F;N;")
+            #client.send_message("feedback", "no")
 
 
     return frame
@@ -64,14 +68,44 @@ def read_barcodes(frame, orderList):
 def ferCalaix(ST):
     # The camera starts (0 indicates that we will use the computer's main camera)
     camera = cv2.VideoCapture(0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
 
-    # The first image from the camera is saved as the frame
-    ret, frame = camera.read()
-    
-    while len(ST) != 0 and ret:
+    while len(ST):
         # A new image is read and processed with the read_barcodes function
-        ret, frame = camera.read()
-        frame = read_barcodes(frame, ST)
+        sucess, frame = camera.read()
+        #frame = read_barcodes(frame, ST)
+        for barcode in decode(frame):
+            barcode_info = barcode.data.decode('utf-8')
+            if barcode_info in codis_llegits:
+                continue
+            # If it's a new code, add the name to the scanned codes
+            codis_llegits.add(barcode_info)
+
+            pos = is_in_orderList(barcode_info, ST)
+
+        
+            # If the medication is one of the medications to be processed, update the orderList
+            if pos != -1:
+                update_orderList(barcode_info, pos, ST)
+                client.send_message("F;Y;")
+                print("Feedback message is sent to the robot to pick up the medicine")
+                #print("Yes")
+                #print("Dormo 30s")
+                time.sleep(30)
+                #print(barcode_info)
+
+            # Otherwise, print that it's not one of the products to be processed
+            else:
+                print(f"The product {barcode_info} is not found in the list")
+                client.send_message_nou_format("F;N;")
+                print("Feedback message is sent to the robot to go and see the next medicine")
+                #print("No")
+                #print("Dormo 30s")
+                time.sleep(30)
+
+                #print(barcode_info)
+
         # The image is shown
         cv2.imshow('Barcode/QR code reader', frame)
         if cv2.waitKey(1) & 0xFF == 27:
@@ -79,3 +113,4 @@ def ferCalaix(ST):
 
     camera.release()
     cv2.destroyAllWindows()
+

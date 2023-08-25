@@ -1,7 +1,7 @@
 import socket
 import time
 import struct
-import time
+
 
 # Create a TCP/IP socket
 setUpPos = [0.98, -1.78, 139.78, 167.65, 50.25, 129.58]
@@ -84,7 +84,7 @@ def send_message(type,n=None):
     sock.connect(('84.88.129.201', 2005)) 
 
     #Send data 
-    #print("I'm sennding: ", message)
+    print("I'm sennding: ", message)
     n = sock.send(message)
     print("send: {} bytes".format(n))
     time.sleep(0.1)
@@ -92,35 +92,23 @@ def send_message(type,n=None):
     sock.close()
 
 
-def send_message(message):
+
+
+def send_message_exmp():
     # Create a TCP client to ROBOT_IP:2001
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(('84.88.129.201', 2007)) 
 
-    # Convert the message to bytes
-    message_bytes = message.encode()
-
-    # Send data 
-    print("I'm sending:", message_bytes)
-    n = sock.send(message_bytes)
-    print("Sent: {} bytes".format(n))
+    while True:
+        message = struct.pack(">ffffff", joint_1, joint_2, joint_3, joint_4, joint_5, joint_6)
+        #Send data 
+        print("I'm sennding: ", message)
+        n = sock.send(message)
+        print("send: {} bytes".format(n))
+        time.sleep(0.1)
     sock.close()
-
-
-
-#send_message_nou_format("A;")
 #send_message("set-up")
 #send_message("box-position", 0)
 #send_message("other", 0)
 
-#send_message_nou_format("F;Y;")
-#time.sleep(30)
-#send_message_nou_format("F;N;")
-#time.sleep(30)
-#send_message_nou_format("C;N;")
-
-#send_message("C;3;")
-#time.sleep(5)
-#send_message("C;2;")
-#time.sleep(5)
-send_message("C;0;")
+send_message_exmp()
