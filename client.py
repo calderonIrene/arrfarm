@@ -29,18 +29,24 @@ def send_message(message):
     ### Send data 
     print("I'm sending:", message_bytes)
     n = sock.send(message_bytes)
-    print("Sent: {} bytes".format(n))
 
 
     ### Receive data
-    d = sock.recv(1024)
+    while True:
+        d = sock.recv(24).decode()
+        if d.strip():  # Verifica si la cadena contiene algo más que espacios en blanco
+            break
 
+    #print("Received data:", d)
+    print("Feedback is received from robot")
+    
     # Decodify it as 6 floats in big-endian format with 4 bytes each
-    joints = struct.unpack(">ffffff", d)
-    print("Received value for each joint is: {}".format(joints))
+    #joints = d.decode('utf-8')
+    #print("Received value for each joint is: {}".format(joints))
 
     # Close the socket
     sock.close()
+
 
 
 
@@ -66,3 +72,5 @@ def send_message(message):
 #send_message("C;2;")
 #time.sleep(5)
 #send_message("C;0;")
+
+#send_message("C;O;0;")

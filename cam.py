@@ -73,9 +73,9 @@ def ferCalaix(ST):
         ret, frame = camera.read()
         frame = read_barcodes(frame, ST)
         # The image is shown
-        cv2.imshow('Barcode/QR code reader', frame)
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
+        #cv2.imshow('Barcode/QR code reader', frame)
+        #if cv2.waitKey(1) & 0xFF == 27:
+        #    break
 
     camera.release()
     cv2.destroyAllWindows()

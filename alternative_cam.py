@@ -22,12 +22,13 @@ def update_orderList(product, pos, orderList):
     orderList.pop(pos)
     print(f"The product {product} has been removed from the list")
 
-# Initialize an empty set to keep track of the scanned codes
-codis_llegits = set()
 
+'''
 def read_barcodes(frame, orderList):
     # PRE: frame is the barcode information, orderList is the list of medications to be found
     # POST: The updated orderList is returned considering the newly scanned code
+
+
     barcodes = pyzbar.decode(frame)
     i = 0
     for barcode in barcodes:
@@ -63,9 +64,11 @@ def read_barcodes(frame, orderList):
 
 
     return frame
-
+'''
 
 def ferCalaix(ST):
+    # Initialize an empty set to keep track of the scanned codes
+    codis_llegits = set()
     # The camera starts (0 indicates that we will use the computer's main camera)
     camera = cv2.VideoCapture(0)
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
@@ -84,32 +87,24 @@ def ferCalaix(ST):
 
             pos = is_in_orderList(barcode_info, ST)
 
+            # The image is shown
+            #cv2.imshow('Barcode/QR code reader', frame)
+            #if cv2.waitKey(1) & 0xFF == 27:
+            #    break
         
             # If the medication is one of the medications to be processed, update the orderList
             if pos != -1:
                 update_orderList(barcode_info, pos, ST)
-                client.send_message("F;Y;")
                 print("Feedback message is sent to the robot to pick up the medicine")
-                #print("Yes")
-                #print("Dormo 30s")
-                time.sleep(30)
-                #print(barcode_info)
-
+                client.send_message("F;Y;")
+            
             # Otherwise, print that it's not one of the products to be processed
             else:
                 print(f"The product {barcode_info} is not found in the list")
-                client.send_message_nou_format("F;N;")
                 print("Feedback message is sent to the robot to go and see the next medicine")
-                #print("No")
-                #print("Dormo 30s")
-                time.sleep(30)
+                client.send_message("F;N;")
+         
 
-                #print(barcode_info)
-
-        # The image is shown
-        cv2.imshow('Barcode/QR code reader', frame)
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
 
     camera.release()
     cv2.destroyAllWindows()

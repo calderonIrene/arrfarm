@@ -29,7 +29,7 @@ for med in replenishment:
 #print(f"\norders:{orders}")        
 
 # The robot is notified that the commands preparation is starting
-client.send_message("I;")
+#client.send_message("I;")
 
 
 ### The order preparation process begins.
@@ -48,20 +48,17 @@ for orderNum, order in enumerate(orders):
         # If there are medicines of the group
         if len(ST) != 0:
             # The group to be processed is sent to the robot
-            client.send_message("C;%s;" % groupNum)   
+            #client.send_message("C;%s;" % groupNum)   
+            client.send_message("C;O;%s;" % groupNum)
 
             for element in ST:
                 order.remove(element)
             print("Group "+str(group)+" "+str(ST))
             
-            #client.send_message("box_position",groupNum) # The position of the present group container is sent to the robot
-            #client.send_message()
-
-            #time.sleep(30)
-            #print("Dormo 30s")
-
             cam.ferCalaix(ST) # Medicines from the current group are collected
+            client.send_message("C;T;%s;" % groupNum)
 
             # The robot is notified that the commands preparation is finished
-            #client.send_message("A;")
+            
 print("All orders have been prepared! :)")
+client.send_message("A;")
