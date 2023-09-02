@@ -28,22 +28,17 @@ def send_message(message):
 
     ### Send data 
     print("I'm sending:", message_bytes)
-    n = sock.send(message_bytes)
 
+    sock.send(message_bytes)
 
     ### Receive data
     while True:
         d = sock.recv(24).decode()
-        if d.strip():  # Verifica si la cadena contiene algo más que espacios en blanco
+        if d.strip():  # Checks if the string contains anything other than white spaces
             break
 
-    #print("Received data:", d)
     print("Feedback is received from robot")
     
-    # Decodify it as 6 floats in big-endian format with 4 bytes each
-    #joints = d.decode('utf-8')
-    #print("Received value for each joint is: {}".format(joints))
-
     # Close the socket
     sock.close()
 
