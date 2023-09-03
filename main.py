@@ -1,8 +1,7 @@
 import datetime
 import db_data_management
-import alternative_cam as cam
+import cam
 import client
-import time
 
 # Grups will store the various groups into which the medicines are divided
 groups =    [["A", "B", "C","D","E","F","G","H","I"], 
@@ -20,45 +19,42 @@ replenishment_list = open(replenishment_list_filepath, "a")
 ### The list of commands to be prepared and the list of medicines that are no longer in stock are obtained
 orders, replenishment = db_data_management.orders_to_be_prepared()
 
+
+
 # The file of the list of medicines that are no longer in stock is updated
 for med in replenishment:
     replenishment_list.write("- " + med + "\n")
 
-# Control messages
-#print(f"\replenishment:{replenishment}")           
-#print(f"\norders:{orders}")        
 
 # The robot is notified that the commands preparation is starting
-#client.send_message("I;")
+client.send_message("I;")
 
 
-### The order preparation process begins.
+### The order preparation process begins
 
-#1. FOR TASK IN TASKS:
+# Iterate over each order in the list of orders
 for orderNum, order in enumerate(orders):
-    print(f"\nOrder {orderNum} in process...")
+    print(f"\nProcessing Order {orderNum}...")
 
-    #FOR GROUP IN GROUPS:
+    # Iterate over each group in the list of groups
     for groupNum, group in enumerate(groups):
-        #print(n)
 
-        # The medicines to be collected that belong to the group being processed are selected
-        ST = [ELEMENT for ELEMENT in order if ELEMENT.startswith(tuple(group))]
-        
-        # If there are medicines of the group
-        if len(ST) != 0:
-            # The group to be processed is sent to the robot
-            #client.send_message("C;%s;" % groupNum)   
-            client.send_message("C;O;%s;" % groupNum)
+        # Select medicines to be collected from the order that belong to the current group
+        medicines_to_collect = [element for element in order if element.startswith(tuple(group))]
 
-            for element in ST:
+        # Check if there are medicines from the current group to collect
+        if len(medicines_to_collect) != 0:
+            # Send the current group information to the robot for processing
+            client.send_message("C;%s;" % groupNum)   
+
+            # Remove collected medicines from the order
+            for element in medicines_to_collect:
                 order.remove(element)
-            print("Group "+str(group)+" "+str(ST))
-            
-            cam.ferCalaix(ST) # Medicines from the current group are collected
-            client.send_message("C;T;%s;" % groupNum)
+            print(f"Collected Medicines in Group {groupNum}: {medicines_to_collect}")
 
-            # The robot is notified that the commands preparation is finished
-            
-print("All orders have been prepared! :)")
+            # Collect medicines from the current group using the 'cam' object
+            cam.collect_medicines(medicines_to_collect)
+
+# Notify that all orders have been prepared
 client.send_message("A;")
+print("All orders have been prepared! :)")

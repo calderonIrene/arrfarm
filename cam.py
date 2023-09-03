@@ -1,81 +1,86 @@
 import cv2
-import pyzbar
+from pyzbar import pyzbar
 from pyzbar.pyzbar import decode
 import client
 
+
 def is_in_orderList(productName, orderList):
-    # The product (productName) is searched in the order list (orderList)
-    # PRE: productName and orderList are not null
-    # POST: If the product productName is found, returns the index of the item in the list orderList
+    '''
+    This function searches for the product name (passed in the first parameter) 
+    in the list passed in the second parameter.
+
+    Args:
+        productName (str): The name to search.
+        orderList ([str]): The list where search for the name of the medicine.
+
+    Note:
+        The `productName` argument must be a non-null string.
+
+    Returns:
+        If the product productName is found, the index of the item in the list orderList,
+        otherwise -1
+    '''
+
     for i, productinOL in enumerate(orderList):
         if productName.upper() == productinOL.upper():
             return i
     return -1
 
-
-def update_orderList(product, pos, orderList):
-    # Remove the product from the order list
-    # PRE: The order list is not null and the product is present in it
-    # POST: The product has been removed from the list
-    orderList.pop(pos)
-    print(f"The product {product} has been removed from the list")
-
-# Initialize an empty set to keep track of the scanned codes
-codis_llegits = set()
-
-def read_barcodes(frame, orderList):
-    # PRE: frame is the barcode information, orderList is the list of medications to be found
-    # POST: The updated orderList is returned considering the newly scanned code
-    barcodes = decode(frame)
-    i = 0
-    for barcode in barcodes:
-        x, y , w, h = barcode.rect
-        
-        # Check if the code has been scanned before
-        barcode_info = barcode.data.decode('utf-8')
-
-        # Write the name of the medication on the image
-        cv2.rectangle(frame, (x, y),(x+w, y+h), (0, 255, 0), 2)
-        font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, barcode_info, (x + 6, y - 6), font, 2.0, (255, 255, 255), 1)
-
-        if barcode_info in codis_llegits:
-            continue
-
-        # If it's a new code, add the name to the scanned codes
-        codis_llegits.add(barcode_info)
-
-        pos = is_in_orderList(barcode_info, orderList)
-        
-        # If the medication is one of the medications to be processed, update the orderList
-        if pos != -1:
-            update_orderList(barcode_info, pos, orderList)
-            client.send_message("A;")
-
-        # Otherwise, print that it's not one of the products to be processed
-        else:
-            print(f"The product {barcode_info} is not found in the list")
-            #client.send_message("F;N;")
-
-
-    return frame
-
-
 def ferCalaix(ST):
+
+    '''
+    Given a list of medicines, this function reads barcodes and updates the list as it sees the medicines appearing on the list.    
+    Ends when the list gets empty.
+
+    In addition, whenever it detects a medicine that is in the list, it uses the client to send feedback to the server.
+
+    Args:
+        ST ([str]): The list of medicines to search for.
+
+    Returns:
+        None
+    '''
+
+    # Initialize an empty set to keep track of the scanned codes
+    scanned_codes = set()
+
     # The camera starts (0 indicates that we will use the computer's main camera)
     camera = cv2.VideoCapture(0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
 
-    # The first image from the camera is saved as the frame
-    ret, frame = camera.read()
-    
-    while len(ST) != 0 and ret:
+    while len(ST):
         # A new image is read and processed with the read_barcodes function
-        ret, frame = camera.read()
-        frame = read_barcodes(frame, ST)
-        # The image is shown
-        #cv2.imshow('Barcode/QR code reader', frame)
-        #if cv2.waitKey(1) & 0xFF == 27:
-        #    break
+        success, frame = camera.read()
+        
+        for barcode in decode(frame):
+            barcode_info = barcode.data.decode('utf-8')
+            if barcode_info in scanned_codes:
+                continue
 
+            # If it's a new code, add the name to the scanned codes
+            scanned_codes.add(barcode_info)
+
+            pos = is_in_orderList(barcode_info, ST)
+
+            # If the medication is one of the medications to be processed, update the orderList
+            if pos != -1:
+                ST.pop(pos)
+                print(f"The product {barcode_info} has been removed from the list")
+                
+                print("Feedback message is sent to the robot to pick up the medicine")
+                client.send_message("F;Y;")
+            
+            # Otherwise, it ignores it and asks the robot to go see the next medicine
+            else:
+                print(f"The product {barcode_info} is not found in the list")
+                
+                print("Feedback message is sent to the robot to go and see the next medicine")
+                client.send_message("F;N;")
+        
+    # Release the camera resources
     camera.release()
+    # Close all OpenCV windows
     cv2.destroyAllWindows()
+
+

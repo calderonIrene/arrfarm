@@ -43,29 +43,3 @@ def send_message(message):
     sock.close()
 
 
-
-
-
-#########################################
-################# TESTS #################
-#########################################
-
-
-#send_message_nou_format("A;")
-#send_message("set-up")
-#send_message("box-position", 0)
-#send_message("other", 0)
-
-#send_message_nou_format("F;Y;")
-#time.sleep(30)
-#send_message_nou_format("F;N;")
-#time.sleep(30)
-#send_message_nou_format("C;N;")
-
-#send_message("C;3;")
-#time.sleep(5)
-#send_message("C;2;")
-#time.sleep(5)
-#send_message("C;0;")
-
-#send_message("C;O;0;")
