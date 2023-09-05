@@ -1,0 +1,76 @@
+begin
+
+// **********************************************************************************************************************
+// ******  This routine implements a server *****************************************************************************
+// ******  The server is always listening and responds to the command coming from the client. ***************************
+// **********************************************************************************************************************
+
+  // Display a message indicating that the server is starting.
+  putln("server is starting")
+
+  // Continuously process incoming data.
+  while true
+    // Clear the buffer of received joints data.
+    clearBuffer(io:receive_joints)
+
+    // Read the first data of the received order, which corresponds to the order type.
+    nData = sioGet(io:receive_joints, toReceive)
+
+    // Initialize the index for processing received data.
+    idx = 0
+
+    // Loop to extract the command from the received data.
+    while(nData > 0)
+      // Append the character at the current index to the command string.
+      command = command + chr(toReceive[idx])
+
+      // Move to the next character in the received data.
+      idx = idx + 1
+
+      // Decrease the count of remaining data to process.
+      nData = nData - 1
+    endWhile
+
+    // If an order has arrived
+    if len(command) > 0
+      // Extract the message type from the entire received string.
+      accType = asc(left(command, find(command, ";")), 0)
+      
+      // According to the order received, action is taken
+      switch accType
+        case 65
+          // ************************ message == "A" ACABAR ************************
+          command = delete(command, 2, 0)
+          // message == "A" Message to end the routin
+          call stop()
+        break
+      
+        
+        // ************************ message == "C" CALAIX ************************
+        case 67       
+          //The received message is updated
+          command = delete(command, 2, 0)
+          
+          //doDrawer subroutine is called to respond to the request
+          call doDrawer()
+          sioSet(io:receive_joints, 89)
+          
+        break
+       
+       
+        // ************************ message == "F" FEEDBACK ************************
+        case 70
+          command = delete(command, 2, 0)
+          call resFB()
+          sioSet(io:receive_joints, 89)
+        break
+       
+        // ************************ message == - DEFAULT ************************
+        default
+          //Do nothing...
+        break
+      endSwitch
+    endIf
+  endWhile
+  call server()
+end

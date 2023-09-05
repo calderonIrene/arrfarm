@@ -1,0 +1,99 @@
+begin
+  
+  // **********************************************************************************************************************
+  // ******  This routine responds to the message of type FEEDBACK ********************************************************
+  // ******  These messages are in the format [F; feedback type;]. Where:  ************************************************
+  // *******  feedback can be yes (Y) or no (N)  **************************************************************************
+  // **********************************************************************************************************************
+  
+  
+  accType = asc(left(command, find(command, ";")), 0)
+  command = delete(command, 2, 0)
+  
+  switch accType
+    case 78
+      // ************************ message 78 == "N" NO ************************
+      
+      putln("The following medicine is to be examined")
+      // Reset param
+      mDes = 0
+      dDes = 0
+      // Update "current" medicine
+      currentMed = currentMed+1
+      
+      // Move to see the next medicine
+      resetMotion()
+      mNomSpeed.vel=50
+
+      mDes = currentMed*80
+      dDes = currentDrawer*50
+      resetMotion()
+      movel(appro(seeMed, {0, mDes, dDes, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+    break
+    
+    case 89
+      // ************************ message 79 == "Y" YES ************************
+      
+      putln("The current medicine is taken")
+      dDes = currentDrawer*50 
+      
+      resetMotion()
+      movel(appro(pAux[0], {0, 0, dDes, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+
+      // The medicine is taken
+      resetMotion()
+      movel(appro(takeMed[currentMed], {0, 0, dDes-50, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+      
+      mNomSpeed.vel=5
+      resetMotion()
+      movel(appro(takeMed[currentMed], {0, 0, dDes, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+      close(flange)
+      delay(1)
+      waitEndMove()
+     
+      // Pujem el medicament
+      mNomSpeed.vel=10
+      resetMotion()
+      movel(appro(takeMed[currentMed], {0, 0, dDes-8, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+      resetMotion()
+      movel(appro(takeMed[currentMed], {-5, 0, dDes-8, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+      resetMotion()
+      movel(appro(takeMed[currentMed], {-5, 0, dDes-200, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+
+    
+      //The medicine is dropped off
+      resetMotion()
+      movel(appro(pDrop[0], {0, 0, -350, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+ 
+      resetMotion()
+      movel(appro(pDrop[0], {0, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+      open(flange)
+      
+      // Update current medicine
+      if currentMed == 2
+        currentMed = 2
+      else
+        currentMed = currentMed+1
+      endIf
+
+      resetMotion()
+      dDes = boxNum*50
+      movel(appro(seeMed[0], {-(5*currentDrawer), 0, 5*currentDrawer, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+  
+    break
+    
+    default
+      //Do nothing...
+    break
+  endSwitch
+end

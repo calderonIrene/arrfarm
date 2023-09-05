@@ -1,0 +1,106 @@
+begin
+
+  // **********************************************************************************************************************
+  // ******  This routine responds to the message of type BOX.  ***********************************************************
+  // ******  These messages are in the format [C;action type;drawer number;]. Where:  *************************************
+  // *******  Action can be open (O) or close (C)  ************************************************************************
+  // ******  Drawer number can take integer values between [1..n] where n is the number of drawers being worked on  *******
+  // **********************************************************************************************************************
+
+  accType = asc(left(command, find(command, ";")), 0)
+  command = delete(command, 2, 0)
+
+  toNum(left(command, find(command, ";")), boxNum, bOk)
+  command = delete(command, 2, 0)
+  
+
+  switch accType
+    case 79
+      // ************************ message 79 == "O" OPEN DRAWER ************************
+      //The variable med_actual is reset
+      currentDrawer = boxNum
+      currentMed = 0
+      put("S'obre el calaix núm:   ")
+      putln(boxNum)
+      
+      // The robot positions itself to open the requested drawer
+      mNomSpeed.vel=75
+      movel(appro(drawer[boxNum], {-100, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+    
+        
+      waitEndMove()
+      open(flange)
+      resetMotion()
+      mNomSpeed.vel=50
+      movel(appro(drawer[boxNum], {0, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+      close(flange)
+      delay(1)       
+        
+      // The drawer is opened
+      mNomSpeed.vel=50
+
+      resetMotion()
+      movel(appro(drawer[boxNum], {-150, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+    
+      open(flange)
+      
+      // Separate from the point
+      resetMotion()
+      movel(appro(drawer[boxNum], {-150, 0, -50, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+      
+    
+      if currentDrawer == 1
+        resetMotion()
+        movel(appro(vMed2[0], {0, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+        waitEndMove()    
+      else
+        resetMotion()
+        dDes = boxNum*50
+        movel(appro(seeMed[0], {-(5*currentDrawer), 0, 5*currentDrawer, 0, 0, 0}), eina, mNomSpeed)
+        waitEndMove()
+      endIf
+      
+      
+    break
+
+    case 84
+      // ************************ message 84 == "T" CLOSE drawer ************************
+    
+      putln(boxNum)
+      putln("  Drawer is closed ")
+      
+      mNomSpeed.vel=25
+      resetMotion()
+      movel(appro(drawer[boxNum], {-150, 0, -50, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+
+      mNomSpeed.vel=5
+      open(flange)
+      resetMotion()
+      movel(appro(drawer[boxNum], {-150, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+      close(flange)
+
+      mNomSpeed.vel=25
+      resetMotion()
+      movel(appro(drawer[boxNum], {0, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()
+
+      // Separate from the point
+      open(flange)
+      resetMotion()
+      movel(appro(drawer[boxNum], {-100, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+      waitEndMove()      
+
+
+    break
+
+    default
+      //Do nothing...
+    break
+    
+  endSwitch
+end

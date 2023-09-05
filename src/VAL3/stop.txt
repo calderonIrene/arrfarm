@@ -1,0 +1,9 @@
+begin
+  resetMotion()
+  movel(appro(pSleep[1], {0, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+  waitEndMove()
+
+  putln(" All the orders have been prepared! ") 
+  popUpMsg("Pending movement commands have been canceled")
+  resetMotion()
+end

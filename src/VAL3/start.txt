@@ -1,0 +1,20 @@
+begin
+  
+  //Call the userPage() function to display the user's page
+  userPage()
+  //Clear the screen to remove any previous content or output.
+  cls()
+  //Enable robot power
+  enablePower()
+
+  putln("The programme is starting...")
+  
+  // The robot moves to the working position.
+  movel(appro(pSleep[1], {0, 0, 0, 0, 0, 0}), eina, mNomSpeed)
+  waitEndMove()
+  
+  //Run the server program
+  call server()
+ 
+end
+            
